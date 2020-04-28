@@ -4,7 +4,7 @@ while [ 1 ]
 
 do
 
-    pid=$(ps -eaf | /bin/grep WebKitWebProcess | grep -v check_WebKitWeb.sh | /bin/grep -v grep | awk '{print $2}')
+    pid=$(ps -eaf | /bin/grep WebKitWebProcess | grep -v $0 | /bin/grep -v grep | awk '{print $2}')
 
     #echo "pid=${pid}"
 
