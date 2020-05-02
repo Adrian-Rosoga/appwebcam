@@ -3,6 +3,7 @@ import signal
 import time
 import sys
 import threading
+from pynput import keyboard
 
 """
 Adrian Rosoga, 6 Apr 2020
@@ -18,7 +19,8 @@ TODO - Use pyinstaller https://github.com/r0x0r/pyinstaller
 TODO - See why high CPU with google.com
 """
 
-from pynput import keyboard
+WEBSITE = "http://192.168.1.105:8007/tl"
+#WEBSITE = 'http://google.com'
 
 # The key combination to check
 COMBINATIONS = [
@@ -33,9 +35,11 @@ COMBINATIONS = [
 # The currently active modifiers
 current = set()
 
+
 def execute():
-    print ("Reloading the page...")
-    webview.windows[0].load_url("http://192.168.1.105:8007/tl")
+    print("Reloading the page...")
+    webview.windows[0].load_url(WEBSITE)
+
 
 def on_press(key):
     if any([key in COMBO for COMBO in COMBINATIONS]):
@@ -43,9 +47,11 @@ def on_press(key):
         if any(all(k in current for k in COMBO) for COMBO in COMBINATIONS):
             execute()
 
+
 def on_release(key):
     if any([key in COMBO for COMBO in COMBINATIONS]):
         current.remove(key)
+
 
 def key_listener():
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
@@ -57,20 +63,18 @@ thr.start()
 
 sys.stderr = sys.stdout
 
-default_handler = signal.getsignal(signal.SIGUSR1)
+#default_handler = signal.getsignal(signal.SIGUSR1)
+#print(default_handler)
 
-print(default_handler)
 
 def handler(signum, frame):
     print(f'Received signal {signal}')
     #print(len(windows))
-    #windows[0].load_url("http://google.com")
+    #windows[0].load_url(WEBSITE)
 
 
 #signal.signal(signal.SIGUSR1, handler)
 
-#time.sleep(10000)
 
-#window = webview.create_window('Simple browser', 'http://google.com')
-window = webview.create_window('Simple browser', 'http://192.168.1.105:8007/tl', x=0, y=0, min_size=(1840, 1240))
+window = webview.create_window('Simple browser', 'WEBSITE', x=0, y=0, min_size=(1840, 1240))
 webview.start()
