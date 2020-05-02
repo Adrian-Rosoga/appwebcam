@@ -76,5 +76,5 @@ def handler(signum, frame):
 #signal.signal(signal.SIGUSR1, handler)
 
 
-window = webview.create_window('Simple browser', 'WEBSITE', x=0, y=0, min_size=(1840, 1240))
+window = webview.create_window('Simple browser', WEBSITE, x=0, y=0, min_size=(1840, 1240))
 webview.start()
