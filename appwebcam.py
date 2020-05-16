@@ -8,19 +8,16 @@ from pynput import keyboard
 """
 Adrian Rosoga, 6 Apr 2020
 
-pip3 install pywebview --user
-
 TODO - Error handling when page/web not available, add Refresh button, etc
 TODO - Add the site that gave pynput idea
 TODO - Remove the alerts "Memory pressure relief..."
-TODO - Add requirements.txt, etc
 TODO - Check why crash when sending signal
 TODO - Use pyinstaller https://github.com/r0x0r/pyinstaller
 TODO - See why high CPU with google.com
 """
 
 WEBSITE = "http://192.168.1.105:8007/tl"
-#WEBSITE = 'http://google.com'
+# WEBSITE = 'http://google.com'
 
 # The key combination to check
 COMBINATIONS = [
@@ -31,6 +28,10 @@ COMBINATIONS = [
 COMBINATIONS = [
     {keyboard.Key.f5}
 ]
+
+
+SIGNAL = signal.SIGILL
+
 
 # The currently active modifiers
 current = set()
@@ -63,18 +64,25 @@ thr.start()
 
 sys.stderr = sys.stdout
 
-#default_handler = signal.getsignal(signal.SIGUSR1)
-#print(default_handler)
+#
+# On Windows, signal() can only be called with SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, or SIGTERM. A ValueError will be raised in any other case.
+#
+default_handler = signal.getsignal(SIGNAL)
+print(default_handler)
 
 
 def handler(signum, frame):
     print(f'Received signal {signal}')
-    #print(len(windows))
-    #windows[0].load_url(WEBSITE)
+    print(len(windows))
+    windows[0].load_url(WEBSITE)
 
 
-#signal.signal(signal.SIGUSR1, handler)
+signal.signal(SIGNAL, handler)
 
+# For Acer Swift
+# window = webview.create_window('AppWebCam', WEBSITE, x=0, y=0, min_size=(1840, 1240))
 
-window = webview.create_window('Simple browser', WEBSITE, x=0, y=0, min_size=(1840, 1240))
+# For Windows
+window = webview.create_window('AppWebCam', WEBSITE, x=110, y=10, min_size=(1840, 1100))
+
 webview.start()
