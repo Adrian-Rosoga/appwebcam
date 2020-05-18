@@ -13,11 +13,14 @@ TODO - Add the site that gave pynput idea
 TODO - Remove the alerts "Memory pressure relief..."
 TODO - Check why crash when sending signal
 TODO - Use pyinstaller https://github.com/r0x0r/pyinstaller
-TODO - See why high CPU with google.com
+TODO - High CPU with google.com
 """
 
 WEBSITE = "http://192.168.1.105:8007/tl"
 # WEBSITE = 'http://google.com'
+SIGNAL = signal.SIGILL
+REFRESH_INTERVAL_SECS = 15
+
 
 # The key combination to check
 COMBINATIONS = [
@@ -30,23 +33,26 @@ COMBINATIONS = [
 ]
 
 
-SIGNAL = signal.SIGILL
-
-
 # The currently active modifiers
 current = set()
 
 
-def execute():
+def reload_page():
     print("Reloading the page...")
     webview.windows[0].load_url(WEBSITE)
+
+
+def refresh():
+    while True:
+        time.sleep(REFRESH_INTERVAL_SECS)
+        reload_page()
 
 
 def on_press(key):
     if any([key in COMBO for COMBO in COMBINATIONS]):
         current.add(key)
         if any(all(k in current for k in COMBO) for COMBO in COMBINATIONS):
-            execute()
+            reload_page()
 
 
 def on_release(key):
@@ -59,8 +65,8 @@ def key_listener():
         listener.join()
 
 
-thr = threading.Thread(target=key_listener, daemon=True)
-thr.start()
+listener_thread = threading.Thread(target=key_listener, daemon=True)
+listener_thread.start()
 
 sys.stderr = sys.stdout
 
@@ -73,16 +79,18 @@ print(default_handler)
 
 def handler(signum, frame):
     print(f'Received signal {signal}')
-    print(len(windows))
-    windows[0].load_url(WEBSITE)
+    reload_page()
 
 
 signal.signal(SIGNAL, handler)
 
 # For Acer Swift
-# window = webview.create_window('AppWebCam', WEBSITE, x=0, y=0, min_size=(1840, 1240))
+# window = webview.create_window('AppWebCam ({SEBSITE})', WEBSITE, x=0, y=0, min_size=(1840, 1240))
+
+refresh_thread = threading.Thread(target=refresh, daemon=True)
+refresh_thread.start()
 
 # For Windows
-window = webview.create_window('AppWebCam', WEBSITE, x=110, y=10, min_size=(1840, 1100))
+window = webview.create_window(f'AppWebCam ({WEBSITE})', WEBSITE, x=110, y=10, min_size=(1840, 1100))
 
 webview.start()
